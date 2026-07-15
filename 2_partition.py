@@ -11,7 +11,7 @@ admin.close()
 print(f"\n--- Particiones del topic '{TOPIC}' ---\n")
 for topic_meta in desc:
     for p in topic_meta['partitions']:
-        print(f"  Partition : {p['partition_id']}")
+        print(f"  Partition : {p['partition']}")
         print(f"  Leader    : {p['leader']}   <- broker que maneja escrituras")
         print(f"  Replicas  : {p['replicas']}  <- brokers con copia de los datos")
         print(f"  Isr       : {p['isr']}       <- replicas sincronizadas")
