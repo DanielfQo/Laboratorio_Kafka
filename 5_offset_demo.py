@@ -39,8 +39,7 @@ def mostrar_mensajes():
 
 while True:
     print("\n" + "=" * 60)
-    print("  DEMO INTERACTIVA: ¿PARA QUE SERVE EL OFFSET?")
-    print("=" * 60)
+
     print("  El Offset es el puntero de lectura. Puedes moverlo para:")
     print("  1. Reprocesar todo desde el principio (Time Travel / Replay)")
     print("  2. Saltar a un offset especifico en la Particion 0 (Auditoria)")
