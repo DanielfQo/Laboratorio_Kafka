@@ -6,12 +6,12 @@ TOPIC     = "prueba"
 
 # Configuración del Consumer
 # auto_offset_reset='earliest' indica que si no hay un offset guardado para este grupo,
-# comenzará a leer desde el inicio de la partición (primer mensaje disponible).
+# comenzara a leer desde el inicio de la partición (primer mensaje disponible).
 consumer = KafkaConsumer(
     TOPIC,
     bootstrap_servers=[BOOTSTRAP],
     auto_offset_reset="earliest",
-    enable_auto_commit=True      # Confirma automáticamente los mensajes leídos
+    enable_auto_commit=True      # Confirma automaticamente los mensajes leídos
 )
 
 print("=" * 60)
@@ -26,7 +26,7 @@ try:
         # Convertir timestamp del mensaje a hora legible
         fecha_msg = datetime.fromtimestamp(mensaje.timestamp / 1000.0).strftime('%H:%M:%S')
         
-        print("\n📥 [Nuevo Mensaje Recibido]")
+        print("\n[Nuevo Mensaje Recibido]")
         print(f"   ├─ Contenido: {mensaje.value.decode('utf-8')}")
         print(f"   ├─ Partition: {mensaje.partition}  (La división del topic de la que provino)")
         print(f"   ├─ Offset   : {mensaje.offset:<4} (La posición secuencial del mensaje)")
