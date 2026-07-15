@@ -11,6 +11,8 @@ from kafka.errors import TopicAlreadyExistsError
 BOOTSTRAP = "172.31.19.42:9092"
 TOPIC     = "prueba"
 
+import time
+
 # Crear el topico
 admin = KafkaAdminClient(bootstrap_servers=BOOTSTRAP)
 
@@ -19,8 +21,10 @@ try:
         NewTopic(name=TOPIC, num_partitions=3, replication_factor=2)
     ])
     print(f"[OK] Topic '{TOPIC}' creado.")
+    time.sleep(2)  # Dar tiempo para propagación de metadatos en el clúster
 except TopicAlreadyExistsError:
     print(f"[INFO] Topic '{TOPIC}' ya existe.")
+
 
 # Listar topico
 topics = admin.list_topics()
