@@ -32,7 +32,7 @@ for t in sorted(topics):
 desc = admin.describe_topics([TOPIC])
 print(f"\n--- Descripcion del topic '{TOPIC}' ---")
 for topic_meta in desc:
-    print(f"  Topic      : {topic_meta['topic']}")
+    print(f"  Topic      : {topic_name['topic']}")
     print(f"  Particiones: {len(topic_meta['partitions'])}")
     for p in topic_meta['partitions']:
         print(f"    Partition {p['partition']}  Leader: {p['leader']}  Replicas: {p['replicas']}")
