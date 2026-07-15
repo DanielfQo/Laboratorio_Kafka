@@ -35,7 +35,7 @@ for topic_meta in desc:
     print(f"  Topic      : {TOPIC}")
     print(f"  Particiones: {len(topic_meta['partitions'])}")
     for p in topic_meta['partitions']:
-        print(f"    Partition {p['partition']}  Leader: {p['leader']}  Replicas: {p['replicas']}")
+        print(f"    Partition {p['partition_id']}  Leader: {p['leader']}  Replicas: {p['replicas']}")
 
 admin.close()
 
