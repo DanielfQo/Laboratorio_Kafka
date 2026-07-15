@@ -1,32 +1,39 @@
-﻿
 from kafka import KafkaProducer
+import time
 
 BOOTSTRAP = "172.31.19.42:9092"
 TOPIC     = "prueba"
 
+# Conexión al broker Kafka
 producer = KafkaProducer(
     bootstrap_servers=[BOOTSTRAP]
 )
 
-print("=" * 50)
-print("  PRODUCER conectado al topic 'prueba'")
-print("  Escribe un mensaje y presiona Enter.")
-print("  Ctrl+C para salir.")
-print("=" * 50)
+print("Producer iniciado. Escribe mensajes (Ctrl+C para salir):")
 
 try:
     while True:
-        mensaje = input("\nMensaje: ")
+        mensaje = input("> ")
         if not mensaje.strip():
             continue
 
-        producer.send(TOPIC, mensaje.encode())
-        producer.flush()
-        print(f"  [ENVIADO] -> '{mensaje}'")
+        # Enviar mensaje al topic
+        future = producer.send(
+            TOPIC,
+            value=mensaje.encode("utf-8")
+        )
+
+        # Esperar confirmación
+        metadata = future.get(timeout=10)
+
+        print(
+            f"Mensaje enviado | "
+            f"Topic: {metadata.topic} | "
+            f"Partition: {metadata.partition} | "
+            f"Offset: {metadata.offset}"
+        )
 
 except KeyboardInterrupt:
-    print("\n  Producer detenido.")
+    print("\nProducer detenido.")
 finally:
     producer.close()
-
-
