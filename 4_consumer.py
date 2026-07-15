@@ -15,7 +15,7 @@ consumer = KafkaConsumer(
 )
 
 print("=" * 60)
-print("  CONSUMER EDUCATIVO iniciado")
+print("  CONSUMER iniciado")
 print(f"  Escuchando topic : {TOPIC}")
 print(f"  Bootstrap Servers: {BOOTSTRAP}")
 print("  Esperando mensajes... (Ctrl+C para salir)")
