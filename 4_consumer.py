@@ -1,25 +1,38 @@
-﻿
 from kafka import KafkaConsumer
+from datetime import datetime
 
 BOOTSTRAP = "172.31.19.42:9092"
 TOPIC     = "prueba"
 
+# Configuración del Consumer
+# auto_offset_reset='earliest' indica que si no hay un offset guardado para este grupo,
+# comenzará a leer desde el inicio de la partición (primer mensaje disponible).
 consumer = KafkaConsumer(
     TOPIC,
     bootstrap_servers=[BOOTSTRAP],
-    auto_offset_reset="earliest"   # leer desde el primer mensaje
+    auto_offset_reset="earliest",
+    enable_auto_commit=True      # Confirma automáticamente los mensajes leídos
 )
 
-print("=" * 50)
-print("  CONSUMER escuchando el topic 'prueba'")
+print("=" * 60)
+print("  CONSUMER EDUCATIVO iniciado")
+print(f"  Escuchando topic : {TOPIC}")
+print(f"  Bootstrap Servers: {BOOTSTRAP}")
 print("  Esperando mensajes... (Ctrl+C para salir)")
-print("=" * 50)
+print("=" * 60)
 
 try:
     for mensaje in consumer:
-        print(f"  [RECIBIDO] -> {mensaje.value.decode()}")
+        # Convertir timestamp del mensaje a hora legible
+        fecha_msg = datetime.fromtimestamp(mensaje.timestamp / 1000.0).strftime('%H:%M:%S')
+        
+        print("\n📥 [Nuevo Mensaje Recibido]")
+        print(f"   ├─ Contenido: {mensaje.value.decode('utf-8')}")
+        print(f"   ├─ Partition: {mensaje.partition}  (La división del topic de la que provino)")
+        print(f"   ├─ Offset   : {mensaje.offset:<4} (La posición secuencial del mensaje)")
+        print(f"   └─ Hora Msg : {fecha_msg}  (Cuándo fue publicado por el Producer)")
 
 except KeyboardInterrupt:
-    print("\n  Consumer detenido.")
+    print("\nConsumer detenido.")
 finally:
     consumer.close()
