@@ -11,13 +11,9 @@ admin.close()
 print(f"\n--- Particiones del topic '{TOPIC}' ---\n")
 for topic_meta in desc:
     for p in topic_meta['partitions']:
-        try:
-            print(f"  Partition : {p['partition']}")
-            print(f"  Leader    : {p['leader']}   <- broker que maneja escrituras")
-            print(f"  Replicas  : {p['replicas']}  <- brokers con copia de los datos")
-            print(f"  Isr       : {p['isr']}       <- replicas sincronizadas")
-        except KeyError as e:
-            print(f"  [ERROR] KeyError: {e}. El diccionario 'p' contiene las claves: {list(p.keys())}")
-            print(f"  Contenido completo de p: {p}")
-            break
+        print(f"  Partition : {p['partition_index']}")
+        print(f"  Leader    : {p['leader_id']}   <- broker que maneja escrituras")
+        print(f"  Replicas  : {p['replica_nodes']}  <- brokers con copia de los datos")
+        print(f"  Isr       : {p['isr_nodes']}       <- replicas sincronizadas")
+        print()
 
