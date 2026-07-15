@@ -1,4 +1,3 @@
-﻿
 from kafka import KafkaConsumer
 
 BOOTSTRAP = "172.31.19.42:9092"
@@ -10,22 +9,21 @@ consumer = KafkaConsumer(
     auto_offset_reset="earliest"
 )
 
-print("=" * 55)
-print("  CONSUMER con OFFSET - topic 'prueba'")
-print("  Muestra la posicion (offset) de cada mensaje.")
-print("  Ctrl+C para salir.")
-print("=" * 55)
+print("=" * 60)
+print("  CONSUMER - DEMOSTRACION DE OFFSET")
+print(f"  Escuchando topic : {TOPIC}")
+print("  Esperando mensajes... (Ctrl+C para salir)")
+print("=" * 60)
 
 try:
     for mensaje in consumer:
-        print(
-            f"  Partition: {mensaje.partition}"
-            f"  Offset: {mensaje.offset:>4}"
-            f"  Mensaje: {mensaje.value.decode()}"
-        )
+        print("\n[Mensaje Recibido]")
+        print(f"   Mensaje  : {mensaje.value.decode('utf-8')}")
+        print(f"   Partition: {mensaje.partition} (La particion donde se guardo)")
+        print(f"   Offset   : {mensaje.offset:<4} (La posicion secuencial en esta particion)")
 
 except KeyboardInterrupt:
-    print("\n  Consumer detenido.")
+    print("\nConsumer detenido.")
 finally:
     consumer.close()
 

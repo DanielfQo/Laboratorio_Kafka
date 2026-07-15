@@ -1,5 +1,3 @@
-﻿
-
 import socket
 from kafka import KafkaConsumer
 
@@ -29,15 +27,14 @@ print("=" * 60)
 
 try:
     for mensaje in consumer:
-        print(
-            f"  [{HOSTNAME}]"
-            f"  Partition: {mensaje.partition}"
-            f"  Offset: {mensaje.offset:>4}"
-            f"  -> {mensaje.value.decode()}"
-        )
+        print("\n[Mensaje Procesado en Grupo]")
+        print(f"   Instancia: {HOSTNAME}")
+        print(f"   Partition: {mensaje.partition} (Asignada a esta instancia)")
+        print(f"   Offset   : {mensaje.offset:<4}")
+        print(f"   Mensaje  : {mensaje.value.decode('utf-8')}")
 
 except KeyboardInterrupt:
-    print("\n  Consumer detenido.")
+    print("\nConsumer detenido.")
 finally:
     consumer.close()
 
