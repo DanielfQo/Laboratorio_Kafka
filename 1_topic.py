@@ -21,7 +21,7 @@ try:
         NewTopic(name=TOPIC, num_partitions=3, replication_factor=2)
     ])
     print(f"[OK] Topic '{TOPIC}' creado.")
-    time.sleep(2)  # Dar tiempo para propagación de metadatos en el clúster
+    time.sleep(2)  # Dar tiempo para propagacion de metadatos 
 except TopicAlreadyExistsError:
     print(f"[INFO] Topic '{TOPIC}' ya existe.")
 

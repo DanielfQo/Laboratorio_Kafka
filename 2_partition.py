@@ -21,12 +21,3 @@ for topic_meta in desc:
             print(f"  Contenido completo de p: {p}")
             break
 
-
-print("""
-EXPLICACION:
-  El topic esta dividido en 3 particiones, lo que permite:
-    - Distribuir la carga entre los brokers.
-    - Procesar mensajes en paralelo con multiples consumidores.
-  Cada particion tiene un lider (broker activo) y una replica
-  en el otro broker para tolerancia a fallos.
-""")
