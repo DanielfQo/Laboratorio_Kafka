@@ -1,0 +1,587 @@
+\documentclass{practicaEPCC}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
+\usepackage{amsmath, amssymb}
+\usepackage{subcaption}
+
+\school{Escuela Profesional de Ciencia de la Computación}
+\course{Big Data}
+\professor{Álvaro Mamani}
+\title{Laboratorio 6 KAFKA}
+\author{Daniel Frank Quiñones Olgado}
+\date{\today}
+
+% Estilo para código
+\usepackage{listings}
+\usepackage{xcolor}
+
+
+\definecolor{codebg}{rgb}{0.95,0.95,0.95}
+\definecolor{codecomment}{rgb}{0.0,0.5,0.0}
+\definecolor{codekeyword}{rgb}{0.0,0.0,0.7}
+\definecolor{codestring}{rgb}{0.58,0.0,0.0}
+\definecolor{codenumber}{rgb}{0.5,0.5,0.5}
+\lstdefinestyle{cppstyle}{
+    language=C++,
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{codekeyword}\bfseries,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{codestring},
+    numberstyle=\tiny\color{codenumber},
+    numbers=left,
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    framerule=0.4pt,
+    rulecolor=\color{black},
+    tabsize=2,
+    breaklines=true,
+    breakatwhitespace=true,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    captionpos=b
+}
+
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{codekeyword}\bfseries,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{codestring},
+    numberstyle=\tiny\color{codenumber},
+    numbers=left,
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    framerule=0.4pt,
+    rulecolor=\color{black},
+    tabsize=4,
+    breaklines=true,
+    breakatwhitespace=true,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    captionpos=b
+}
+
+\lstset{style=pythonstyle}
+
+
+
+\begin{document}
+
+\maketitle
+
+\section{Creación de instancias EC2}
+
+Como primer paso se crearon dos instancias virtuales EC2 dentro de AWS. Estas instancias fueron utilizadas para simular un entorno distribuido:
+
+\begin{itemize}
+    \item Una instancia fue configurada como nodo principal para ejecutar los servicios de Kafka.
+    \item La segunda instancia permitió realizar pruebas de comunicación y funcionamiento distribuido.
+\end{itemize}
+
+Durante la creación de las instancias se configuraron los grupos de seguridad necesarios para permitir la comunicación mediante SSH y los puertos requeridos por Kafka.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/instancias.png}
+    \caption{Intancias EC2}
+    \label{fig:placeholder}
+\end{figure}
+
+\section{Configuración del entorno Java}
+
+Apache Kafka requiere un entorno Java para su ejecución. Por esta razón, antes de instalar Kafka se procedió a instalar Java Development Kit (JDK) versión 17 en las instancias EC2.
+
+La instalación se realizó mediante los siguientes comandos:
+
+\begin{lstlisting}
+sudo apt update
+
+sudo apt install openjdk-17-jdk -y
+\end{lstlisting}
+
+Después de la instalación se verificó la versión de Java instalada:
+
+\begin{lstlisting}
+java -version
+\end{lstlisting}
+
+El resultado permitió comprobar que la versión utilizada correspondía a Java 17, requisito necesario para ejecutar Apache Kafka.
+
+\section{Descarga e instalación de Apache Kafka}
+
+Una vez configurado Java, se procedió a descargar el paquete de Apache Kafka desde su repositorio oficial.
+
+Primero se descargó el archivo comprimido:
+
+\begin{lstlisting}
+wget https://downloads.apache.org/kafka/
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{imagenes/descargakafka.png}
+    \caption{Instalación}
+    \label{fig:placeholder}
+\end{figure}
+
+Posteriormente se descomprimió el paquete descargado:
+
+\begin{lstlisting}
+tar -xzf kafka_*.tgz
+\end{lstlisting}
+
+Luego se accedió al directorio de Kafka:
+
+\begin{lstlisting}
+cd kafka_*
+\end{lstlisting}
+
+Dentro de este directorio se encuentran los archivos de configuración y los scripts necesarios para iniciar los servicios de Kafka.
+
+\section{Configuración de Kafka}
+
+Kafka requiere la configuración de sus archivos principales para definir parámetros como:
+
+\begin{itemize}
+    \item Identificador del broker.
+    \item Dirección IP donde escucha el servicio.
+    \item Puerto de comunicación.
+    \item Directorios utilizados para almacenar mensajes.
+\end{itemize}
+
+El archivo principal de configuración utilizado fue:
+
+\begin{lstlisting}
+config/server.properties
+\end{lstlisting}
+
+En este archivo se modificaron los parámetros necesarios para permitir la comunicación entre las instancias EC2.
+
+\section{Ejecución de los servicios Kafka}
+
+Para iniciar Kafka se ejecutó el servicio correspondiente utilizando los scripts incluidos en la instalación.
+
+Ejemplo de inicio del servidor:
+
+\begin{lstlisting}
+bin/kafka-server-start.sh config/server.properties
+\end{lstlisting}
+
+Después de iniciar el servicio se verificó que el broker estuviera activo y escuchando correctamente las conexiones.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{imagenes/brokerini.png}
+    \caption{Servidor iniciado}
+    \label{fig:placeholder}
+\end{figure}
+
+
+
+\section{Topic}
+
+Un \textbf{Topic} en Apache Kafka es un canal lógico o categoría donde se clasifican y almacenan los flujos de registros/mensajes. Los productores envían mensajes a un tópico específico, y los consumidores se suscriben a él para leerlos. En esta sección se presenta el código utilizado para crear, listar y describir el tópico denominado \texttt{prueba}.
+
+\begin{lstlisting}[style=pythonstyle, caption={Creación y descripción del tópico (1\_topic.py)}]
+from kafka.admin import KafkaAdminClient, NewTopic
+from kafka.errors import TopicAlreadyExistsError
+import time
+
+BOOTSTRAP = "172.31.19.42:9092"
+TOPIC     = "prueba"
+
+# Crear el topico
+admin = KafkaAdminClient(bootstrap_servers=BOOTSTRAP)
+
+try:
+    admin.create_topics([
+        NewTopic(name=TOPIC, num_partitions=3, replication_factor=2)
+    ])
+    print(f"[OK] Topic '{TOPIC}' creado.")
+    time.sleep(2)  # Dar tiempo para la propagación de metadatos en el clúster
+except TopicAlreadyExistsError:
+    print(f"[INFO] Topic '{TOPIC}' ya existe.")
+
+# Listar topico
+topics = admin.list_topics()
+print("\n--- Topics disponibles ---")
+for t in sorted(topics):
+    print(f"  {t}")
+
+# Describir topico
+desc = admin.describe_topics([TOPIC])
+print(f"\n--- Descripcion del topic '{TOPIC}' ---")
+for topic_meta in desc:
+    print(f"  Topic      : {TOPIC}")
+    print(f"  Particiones: {len(topic_meta['partitions'])}")
+    for p in topic_meta['partitions']:
+        print(f"    Partition {p['partition_index']}  Leader: {p['leader_id']}  Replicas: {p['replica_nodes']}")
+
+admin.close()
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/topic.png}
+    \caption{Topic creado}
+    \label{fig:topic_creado}
+\end{figure}
+
+\section{Partition}
+
+Las \textbf{Particiones} dividen físicamente un tópico en múltiples segmentos. Esto permite distribuir los mensajes del tópico a lo largo de varios servidores/brokers en el clúster de Kafka, logrando un alto paralelismo tanto de escritura (múltiples productores escribiendo) como de lectura (múltiples consumidores leyendo en paralelo). Cada partición posee un nodo líder asignado para coordinar los datos y nodos réplica para asegurar la tolerancia a fallos.
+
+El siguiente script en Python describe la distribución actual de particiones, líderes y réplicas para el tópico \texttt{prueba}:
+
+\begin{lstlisting}[style=pythonstyle, caption={Consulta del estado físico de las particiones (2\_partition.py)}]
+from kafka.admin import KafkaAdminClient
+
+BOOTSTRAP = "172.31.19.42:9092"
+TOPIC     = "prueba"
+
+admin = KafkaAdminClient(bootstrap_servers=BOOTSTRAP)
+desc  = admin.describe_topics([TOPIC])
+admin.close()
+
+print(f"\n--- Particiones del topic '{TOPIC}' ---\n")
+for topic_meta in desc:
+    for p in topic_meta['partitions']:
+        print(f"  Partition : {p['partition_index']}")
+        print(f"  Leader    : {p['leader_id']}   <- broker que maneja escrituras")
+        print(f"  Replicas  : {p['replica_nodes']}  <- brokers con copia de los datos")
+        print(f"  Isr       : {p['isr_nodes']}       <- replicas sincronizadas")
+        print()
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/partition.png}
+    \caption{Información de las particiones}
+    \label{fig:particiones_info}
+\end{figure}
+
+\section{Producer}
+
+El \textbf{Producer} es la aplicación cliente encargada de publicar registros en los tópicos de Kafka. El productor interactivo solicita datos por consola, genera el payload y realiza una publicación asíncrona devolviendo un objeto \texttt{Future}. Al invocar \texttt{future.get()}, bloquea la ejecución hasta que el clúster confirma la recepción exitosa y devuelve los metadatos correspondientes (tópico, partición de destino y offset asignado).
+
+\begin{lstlisting}[style=pythonstyle, caption={Publicador interactivo de mensajes (3\_producer.py)}]
+from kafka import KafkaProducer
+import time
+
+BOOTSTRAP = "172.31.19.42:9092"
+TOPIC     = "prueba"
+
+# Conexión al broker Kafka
+producer = KafkaProducer(
+    bootstrap_servers=[BOOTSTRAP]
+)
+
+print("Producer iniciado. Escribe mensajes (Ctrl+C para salir):")
+
+try:
+    while True:
+        mensaje = input("> ")
+        if not mensaje.strip():
+            continue
+
+        # Enviar mensaje al topic
+        future = producer.send(
+            TOPIC,
+            value=mensaje.encode("utf-8")
+        )
+
+        # Esperar confirmación
+        metadata = future.get(timeout=10)
+
+        print(
+            f"Mensaje enviado | "
+            f"Topic: {metadata.topic} | "
+            f"Partition: {metadata.partition} | "
+            f"Offset: {metadata.offset}"
+        )
+
+except KeyboardInterrupt:
+    print("\nProducer detenido.")
+finally:
+    producer.close()
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/producerMejor.png}
+    \caption{Producer implementado y visualización de las particiones}
+    \label{fig:producer_mejor}
+\end{figure}
+
+\section{Consumer}
+
+El \textbf{Consumer} es la aplicación que se suscribe a uno o varios tópicos para procesar los flujos de registros que son publicados por los productores. Mediante el parámetro \texttt{auto\_offset\_reset='earliest'}, indicamos al consumidor que si no posee un offset previamente confirmado para el grupo, empiece a procesar la partición desde el principio (offset 0), recuperando todo el histórico.
+
+\begin{lstlisting}[style=pythonstyle, caption={Consumidor estándar en Python (4\_consumer.py)}]
+from kafka import KafkaConsumer
+from datetime import datetime
+
+BOOTSTRAP = "172.31.19.42:9092"
+TOPIC     = "prueba"
+
+# Configuración del Consumer
+consumer = KafkaConsumer(
+    TOPIC,
+    bootstrap_servers=[BOOTSTRAP],
+    auto_offset_reset="earliest",
+    enable_auto_commit=True      # Confirma automaticamente los mensajes leídos
+)
+
+print("=" * 60)
+print("  CONSUMER iniciado")
+print(f"  Escuchando topic : {TOPIC}")
+print(f"  Bootstrap Servers: {BOOTSTRAP}")
+print("  Esperando mensajes... (Ctrl+C para salir)")
+print("=" * 60)
+
+try:
+    for mensaje in consumer:
+        # Convertir timestamp del mensaje a hora legible
+        fecha_msg = datetime.fromtimestamp(mensaje.timestamp / 1000.0).strftime('%H:%M:%S')
+        
+        print("\n[Nuevo Mensaje Recibido]")
+        print(f"   Contenido: {mensaje.value.decode('utf-8')}")
+        print(f"   Partition: {mensaje.partition}  (La división del topic de la que provino)")
+        print(f"   Offset   : {mensaje.offset:<4} (La posición secuencial del mensaje)")
+        print(f"   Hora Msg : {fecha_msg}  (Cuándo fue publicado por el Producer)")
+
+except KeyboardInterrupt:
+    print("\nConsumer detenido.")
+finally:
+    consumer.close()
+\end{lstlisting}
+
+A continuación se muestran capturas de la ejecución en tiempo real del productor y el consumidor en sus respectivos terminales de las instancias EC2:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/consumer.png}
+    \caption{Probando Consumer con los mensajes enviados anteriormente}
+    \label{fig:consumer_previo}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/producerTR.png}
+    \caption{Producer en tiempo real}
+    \label{fig:producer_tr}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/consumerTR.png}
+    \caption{Consumer en tiempo real}
+    \label{fig:consumer_tr}
+\end{figure}
+
+\section{Offset}
+
+El \textbf{Offset} es un entero secuencial y único asignado por el clúster de Kafka a cada mensaje dentro de una partición. Actúa como el puntero de lectura de los consumidores. Al registrar qué offset ha sido procesado y confirmado, los consumidores pueden recuperarse de fallos reanudando el trabajo exactamente donde lo dejaron.
+
+Para fines demostrativos, se crearon dos programas: uno simple (\texttt{5\_offset.py}) que lee el flujo y expone los offsets asignados, y otro interactivo (\texttt{5\_offset\_demo.py}) que manipula el offset utilizando la API \texttt{seek()} y \texttt{seek\_to\_beginning()} del cliente, demostrando el re-procesamiento de datos (Time Travel / Replay) o el salto para ignorar el historial.
+
+\begin{lstlisting}[style=pythonstyle, caption={Consumidor que expone offsets (5\_offset.py)}]
+from kafka import KafkaConsumer
+
+BOOTSTRAP = "172.31.19.42:9092"
+TOPIC     = "prueba"
+
+consumer = KafkaConsumer(
+    TOPIC,
+    bootstrap_servers=[BOOTSTRAP],
+    auto_offset_reset="earliest"
+)
+
+print("=" * 60)
+print("  CONSUMER - DEMOSTRACION DE OFFSET")
+print(f"  Escuchando topic : {TOPIC}")
+print("  Esperando mensajes... (Ctrl+C para salir)")
+print("=" * 60)
+
+try:
+    for mensaje in consumer:
+        print("\n[Mensaje Recibido]")
+        print(f"   Mensaje  : {mensaje.value.decode('utf-8')}")
+        print(f"   Partition: {mensaje.partition} (La particion donde se guardo)")
+        print(f"   Offset   : {mensaje.offset:<4} (La posicion secuencial en esta particion)")
+
+except KeyboardInterrupt:
+    print("\nConsumer detenido.")
+finally:
+    consumer.close()
+\end{lstlisting}
+
+\begin{lstlisting}[style=pythonstyle, caption={Demostración interactiva de manipulación de punteros (5\_offset\_demo.py)}]
+from kafka import KafkaConsumer, TopicPartition
+import time
+
+BOOTSTRAP = "172.31.19.42:9092"
+TOPIC     = "prueba"
+
+# Instanciar el consumidor
+consumer = KafkaConsumer(
+    bootstrap_servers=[BOOTSTRAP],
+    auto_offset_reset="earliest"
+)
+
+print("Conectando al cluster y obteniendo particiones...")
+try:
+    partition_ids = consumer.partitions_for_topic(TOPIC)
+    if not partition_ids:
+        print(f"Error: No se encontraron particiones para el topic '{TOPIC}'.")
+        consumer.close()
+        exit(1)
+    partitions = [TopicPartition(TOPIC, p) for p in partition_ids]
+    consumer.assign(partitions)
+except Exception as e:
+    print(f"Error al conectar: {e}")
+    consumer.close()
+    exit(1)
+
+def mostrar_mensajes():
+    records = consumer.poll(timeout_ms=2000)
+    if not records:
+        print("  [INFO] No hay mas mensajes en este offset.")
+        return
+    for tp, messages in records.items():
+        for msg in messages:
+            print(f"  -> [Particion {msg.partition}] Offset: {msg.offset:<3} | Mensaje: {msg.value.decode('utf-8')}")
+
+while True:
+    print("\n" + "=" * 60)
+    print("  El Offset es el puntero de lectura. Puedes moverlo para:")
+    print("  1. Reprocesar todo desde el principio (Time Travel / Replay)")
+    print("  2. Saltar a un offset especifico en la Particion 0 (Auditoria)")
+    print("  3. Ignorar el historial y leer solo mensajes nuevos")
+    print("  4. Salir")
+    print("-" * 60)
+    try:
+        opcion = input("Elige una opcion (1-4): ").strip()
+    except KeyboardInterrupt:
+        break
+    if opcion == "1":
+        print("\n[Accion] Moviendo los offsets al inicio (0)...")
+        for tp in partitions:
+            consumer.seek_to_beginning(tp)
+        mostrar_mensajes()
+    elif opcion == "2":
+        try:
+            target_offset = int(input("\nOffset en la Particion 0: "))
+            tp_zero = TopicPartition(TOPIC, 0)
+            if tp_zero in partitions:
+                consumer.seek(tp_zero, target_offset)
+                mostrar_mensajes()
+        except ValueError:
+            print("Numero invalido.")
+    elif opcion == "3":
+        print("\nMoviendo al final (mensajes nuevos)...")
+        for tp in partitions:
+            consumer.seek_to_end(tp)
+        mostrar_mensajes()
+    elif opcion == "4":
+        break
+
+consumer.close()
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/offset.png}
+    \caption{Visualización de offset}
+    \label{fig:offset_visualizacion}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/offsetdemo.png}
+    \caption{Demostración de como se usa el offset para mover el puntero y leer}
+    \label{fig:offset_demo_captura}
+\end{figure}
+
+\section{Consumer Group}
+
+Un \textbf{Consumer Group} agrupa a múltiples instancias de consumidores que cooperan compartiendo el procesamiento de mensajes de un tópico. Kafka distribuye las particiones de forma exclusiva entre las instancias activas del grupo. Cada partición se asigna a exactamente un consumidor del grupo, previniendo el procesamiento redundante y posibilitando el escalado horizontal.
+
+Si se ejecutan varios procesos con el mismo \texttt{group\_id}, el coordinador de grupo de Kafka gatilla un proceso de rebalanceo y divide el trabajo de forma automática.
+
+\begin{lstlisting}[style=pythonstyle, caption={Consumidor escalable con pertenencia a grupo (6\_consumer\_group.py)}]
+import socket
+from kafka import KafkaConsumer
+
+BOOTSTRAP    = "172.31.19.42:9092"
+TOPIC        = "prueba"
+GROUP_ID     = "grupo1"
+HOSTNAME     = socket.gethostname()   # identifica cual instancia es
+
+consumer = KafkaConsumer(
+    TOPIC,
+    bootstrap_servers=[BOOTSTRAP],
+    group_id=GROUP_ID,                 # <- mismo grupo en todos los terminales
+    auto_offset_reset="earliest"
+)
+
+print("=" * 60)
+print(f"  CONSUMER GROUP '{GROUP_ID}'")
+print(f"  Instancia : {HOSTNAME}")
+print(f"  Topic     : {TOPIC}")
+print()
+print("  Kafka asignara automaticamente las particiones")
+print("  disponibles a esta instancia del grupo.")
+print("  Abre otro terminal y ejecuta este mismo script")
+print("  para ver como se reparten las particiones.")
+print("  Ctrl+C para salir.")
+print("=" * 60)
+
+try:
+    for mensaje in consumer:
+        print("\n[Mensaje Procesado en Grupo]")
+        print(f"   Instancia: {HOSTNAME}")
+        print(f"   Partition: {mensaje.partition} (Asignada a esta instancia)")
+        print(f"   Offset   : {mensaje.offset:<4}")
+        print(f"   Mensaje  : {mensaje.value.decode('utf-8')}")
+
+except KeyboardInterrupt:
+    print("\nConsumer detenido.")
+finally:
+    consumer.close()
+\end{lstlisting}
+
+Las capturas a continuación demuestran cómo la Instancia 1 (EC1) consume las particiones 0 y 1, mientras que la Instancia 2 (EC2) consume de forma paralela la partición 2, sin sobreponerse:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/group01.png}
+    \caption{Consumer con particion 0 y 1}
+    \label{fig:group01}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{consumer2.png}
+    \caption{Consumer con particion 2}
+    \label{fig:consumer2}
+\end{figure}
+
+\section{Repositorio}
+
+El código desarrollado, scripts de configuración y esta documentación en LaTeX se encuentran alojados en el siguiente repositorio público de GitHub:
+\begin{center}
+    \url{https://github.com/DanielfQo/Laboratorio_Kafka}
+\end{center}
+
+\end{document}
