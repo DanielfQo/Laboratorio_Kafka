@@ -27,10 +27,10 @@ try:
         fecha_msg = datetime.fromtimestamp(mensaje.timestamp / 1000.0).strftime('%H:%M:%S')
         
         print("\n[Nuevo Mensaje Recibido]")
-        print(f"   ├─ Contenido: {mensaje.value.decode('utf-8')}")
-        print(f"   ├─ Partition: {mensaje.partition}  (La división del topic de la que provino)")
-        print(f"   ├─ Offset   : {mensaje.offset:<4} (La posición secuencial del mensaje)")
-        print(f"   └─ Hora Msg : {fecha_msg}  (Cuándo fue publicado por el Producer)")
+        print(f"   Contenido: {mensaje.value.decode('utf-8')}")
+        print(f"   Partition: {mensaje.partition}  (La división del topic de la que provino)")
+        print(f"   Offset   : {mensaje.offset:<4} (La posición secuencial del mensaje)")
+        print(f"   Hora Msg : {fecha_msg}  (Cuándo fue publicado por el Producer)")
 
 except KeyboardInterrupt:
     print("\nConsumer detenido.")
